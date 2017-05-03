@@ -23,20 +23,26 @@
  */
 package com.nirima.jenkins;
 
+import java.net.MalformedURLException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.kohsuke.stapler.DataBoundConstructor;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.nirima.jenkins.action.ProjectRepositoryAction;
 import com.nirima.jenkins.action.RepositoryAction;
-import hudson.Extension;
-import hudson.model.*;
-import hudson.tasks.BuildWrapper;
-import jenkins.model.Jenkins;
-import org.kohsuke.stapler.DataBoundConstructor;
 
-import java.net.MalformedURLException;
-import java.util.List;
+import hudson.Extension;
+import hudson.model.AbstractBuild;
+import hudson.model.BuildableItemWithBuildWrappers;
+import hudson.model.Descriptor;
+import hudson.model.Run;
 import hudson.plugins.promoted_builds.PromotedBuildAction;
+import jenkins.model.Jenkins;
 
 public class SelectionTypeProject extends SelectionType {
     public String project;
@@ -105,7 +111,7 @@ public class SelectionTypeProject extends SelectionType {
                 Jenkins.getInstance().getAllItems(BuildableItemWithBuildWrappers.class),
                 new Predicate<BuildableItemWithBuildWrappers>() {
                     public boolean apply(BuildableItemWithBuildWrappers buildableItemWithBuildWrappers) {
-                        return buildableItemWithBuildWrappers.getName().equals(project);
+                        return buildableItemWithBuildWrappers.getFullName().equals(project);
                     }
                 });
         return item;
@@ -158,7 +164,14 @@ public class SelectionTypeProject extends SelectionType {
         }
 
         public List<BuildableItemWithBuildWrappers> getJobs() {
-            return Jenkins.getInstance().getAllItems(BuildableItemWithBuildWrappers.class);
+            List<BuildableItemWithBuildWrappers> jobs = Jenkins.getInstance().getAllItems(BuildableItemWithBuildWrappers.class);
+            Collections.sort(jobs, new Comparator<BuildableItemWithBuildWrappers>() {
+                @Override
+                public int compare(BuildableItemWithBuildWrappers item1, BuildableItemWithBuildWrappers item2) {
+                    return item1.getFullName().compareTo(item2.getFullName());
+                }
+            });
+            return jobs;
         }
     }
 

@@ -7,14 +7,14 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.nirima.jenkins.repo.RepositoryDirectory;
 import com.nirima.jenkins.repo.RepositoryElement;
-import hudson.model.BuildableItem;
-import hudson.model.BuildableItemWithBuildWrappers;
-import hudson.model.Item;
-import hudson.model.Job;
+import hudson.model.*;
 import jenkins.branch.MultiBranchProject;
 import jenkins.model.Jenkins;
 
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 
 /**
@@ -22,34 +22,44 @@ import java.util.List;
  */
 public class ProjectUtils {
 
-    public static Collection<RepositoryElement> getChildren(final RepositoryDirectory parent, final Collection<?> items) {
-        List<RepositoryElement> elements = Lists.newArrayList(Iterators.transform(items.iterator(),
-                new Function<Object, RepositoryElement>() {
-                    public RepositoryElement apply(Object from) {
-                        if (from instanceof BuildableItemWithBuildWrappers) {
-                            return new ProjectElement(parent, ((BuildableItemWithBuildWrappers) from).asProject());
-                        }
-                        if (from instanceof MultiBranchProject) {
-                            return new MultiBranchProjectElement(parent, (MultiBranchProject) from);
-                        }
-                        if (from instanceof Job) {
-                            return new ProjectElement(parent, (Job) from);
-                        }
+	public static Collection<RepositoryElement> getChildren(final RepositoryDirectory parent, final Collection<?> items) {
+		Iterator<RepositoryElement> iterator = Iterators.transform(items.iterator(),
+				new Function<Object, RepositoryElement>() {
+					public RepositoryElement apply(Object from) {
+						if (from instanceof BuildableItemWithBuildWrappers) {
+							return new ProjectElement(parent, ((BuildableItemWithBuildWrappers) from).asProject());
+						}
+						if (from instanceof ItemGroup) {
+							return new ItemGroupDirectory(parent, (ItemGroup) from);
+						}
+						if (from instanceof Job) {
+							return new ProjectElement(parent, (Job) from);
+						}
+						if (from instanceof ItemGroupDirectory) {
+							return (ItemGroupDirectory) from;
+						}
 
-                        return null;
-                    }
-                }));
+						return null;
+					}
+				});
+		iterator = Iterators.filter(iterator, new Predicate<RepositoryElement>() {
 
-        // Squash ones we couldn't sensibly find an element for.
-        return Collections2.filter(elements, new Predicate<RepositoryElement>() {
-            @Override
-            public boolean apply(RepositoryElement input) {
-                return input != null;
-            }
-        });
-    }
+			@Override
+			public boolean apply(RepositoryElement input) {
+				return input != null;
+			}
+		});
+		List<RepositoryElement> elements = Lists.newArrayList(iterator);
+		Collections.sort(elements, new Comparator<RepositoryElement>() {
+			@Override
+			public int compare(RepositoryElement element1, RepositoryElement element2) {
+				return element1.getName().compareTo(element2.getName());
+			}
+		});
+		return elements;
+	}
 
-    public static String sanitizeName(String name) {
-        return name.replace("/","-").replace("%2F","-");
-    }
+	public static String sanitizeName(String name) {
+		return name.replace("/", "-").replace("%2F", "-");
+	}
 }

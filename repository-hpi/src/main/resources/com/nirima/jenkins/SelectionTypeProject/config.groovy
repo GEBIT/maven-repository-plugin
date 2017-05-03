@@ -11,7 +11,7 @@ f=namespace("/lib/form")
 f.entry(title:_("Project"), field:"project") {
      select(name:"project") {
         descriptor.getJobs().each() { item ->
-            f.option(selected:item.name==instance?.project, value:item.name, _(item.name))
+            f.option(selected:item.fullName==instance?.project, value:item.fullName, _(item.fullName))
         }
      }
 }

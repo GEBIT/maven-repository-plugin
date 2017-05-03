@@ -312,7 +312,7 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
 
     private Project getProject(String pathElement) {
         for (Project project : Hudson.getInstance().getProjects()) {
-            if (project.getName().equals(pathElement))
+            if (project.getFullName().equals(pathElement))
                 return project;
         }
         return null;

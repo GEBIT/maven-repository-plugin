@@ -89,7 +89,7 @@ public class ArtifactRepositoryItem implements RepositoryContent {
     public String getDescription() {
         if( build instanceof MavenBuild ) {
             return "From Build #" + build.getNumber() + " of " + ((MavenBuild)build).getParentBuild().getParent()
-                .getName();
+                .getFullName();
         }
         else {
             return "From Build #" + build.getNumber() + " of " + build.getDisplayName();

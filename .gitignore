@@ -3,3 +3,8 @@ work
 *.iml
 pom.xml.releaseBackup
 release.properties
+.classpath
+.project
+.settings
+.factorypath
+repository-hpi/src/main/resources/tools

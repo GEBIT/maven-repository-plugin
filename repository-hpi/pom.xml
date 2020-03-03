@@ -24,7 +24,6 @@
             <plugin>
                 <groupId>org.codehaus.gmaven</groupId>
                 <artifactId>gmaven-plugin</artifactId>
-                <version>1.5</version>
                 <executions>
 
                     <execution>
@@ -85,18 +84,30 @@
                   </dependency>
                 </dependencies>
             </plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<configuration>
+					<rules>
+						<requireUpperBoundDeps>
+							<excludes combine.children="append">
+								<exclude>commons-io:commons-io</exclude>
+							</excludes>
+						</requireUpperBoundDeps>
+					</rules>
+				</configuration>
+			</plugin>
         </plugins>
     </build>
     <dependencies>
         <dependency>
-            <groupId>org.jenkinsci.plugins</groupId>
+            <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>git</artifactId>
-            <version>1.1.29</version>
         </dependency>
 
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
-            <version>2.1</version>
+            <version>3.4</version>
             <artifactId>maven-plugin</artifactId>
         </dependency>
 
@@ -110,7 +121,6 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>token-macro</artifactId>
-            <version>1.7</version>
             <optional>true</optional>
             <exclusions>
                 <exclusion>
@@ -123,32 +133,30 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>promoted-builds</artifactId>
-            <version>2.10</version>
+            <version>3.5</version>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>branch-api</artifactId>
-            <version>0.2-beta-4</version>
             <optional>true</optional>
         </dependency>
-        <dependency>
-            <groupId>com.nirima.jenkins.repository</groupId>
-            <artifactId>jenkins-maven-plugin</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.apache.maven</groupId>
-                    <artifactId>maven-plugin-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
+<!--         <dependency> -->
+<!--             <groupId>com.nirima.jenkins.repository</groupId> -->
+<!--             <artifactId>jenkins-maven-plugin</artifactId> -->
+<!--             <version>${project.version}</version> -->
+<!--             <scope>provided</scope> -->
+<!--             <exclusions> -->
+<!--                 <exclusion> -->
+<!--                     <groupId>org.apache.maven</groupId> -->
+<!--                     <artifactId>maven-plugin-api</artifactId> -->
+<!--                 </exclusion> -->
+<!--             </exclusions> -->
+<!--         </dependency> -->
         
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-core</artifactId>
-			<version>1.9.5</version>
 			<scope>test</scope>
 			<exclusions>
 				<exclusion>
@@ -157,6 +165,12 @@
         		</exclusion>
         	</exclusions>			
 		</dependency>
+		
+	    <dependency>
+	      <groupId>junit</groupId>
+	      <artifactId>junit</artifactId>
+	      <scope>test</scope>
+	    </dependency>
 
 
     </dependencies>

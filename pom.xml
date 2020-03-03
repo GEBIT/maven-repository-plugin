@@ -3,7 +3,7 @@
     <parent>
         <groupId>org.jenkins-ci.plugins</groupId>
         <artifactId>plugin</artifactId>
-        <version>1.609.2</version>
+        <version>3.43</version>
     </parent>
 
     <groupId>com.nirima.jenkins.repository</groupId>
@@ -25,7 +25,7 @@
                     <plugin>
                         <groupId>com.nirima.jenkins.repository</groupId>
                         <artifactId>jenkins-maven-plugin</artifactId>
-                        <version>${pom.version}</version>
+                        <version>${project.version}</version>
                         <executions>
                             <execution>
                             <goals>
@@ -53,12 +53,14 @@
     </developers>
 
     <properties>
-        <hpi.plugin.version>1.113</hpi.plugin.version>
-        <jenkins.version>${project.parent.version}</jenkins.version>
+        <hpi.plugin.version>3.12</hpi.plugin.version>
+        <jenkins.version>2.150.3</jenkins.version>
+        <java.level>8</java.level>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
         <jdk.debug>true</jdk.debug>
         <jdk.optimize>false</jdk.optimize>
-        <jdk.source>1.7</jdk.source>
-        <jdk.target>1.7</jdk.target>
+        <jdk.source>1.8</jdk.source>
+        <jdk.target>1.8</jdk.target>
     </properties>
     <build>
         <pluginManagement>
@@ -83,6 +85,17 @@
             </plugins>
         </pluginManagement>
     </build>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.jenkins.tools.bom</groupId>
+                <artifactId>bom-2.150.x</artifactId>
+                <version>4</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <licenses>
        <license>
           <name>MIT</name>
@@ -93,8 +106,8 @@
         <developerConnection>scm:git:git@github.com:magnayn/Jenkins-Repository.git</developerConnection>
     </scm>
     <modules>
-        <module>repository-hpi</module>
         <module>jenkins-maven-plugin</module>
+        <module>repository-hpi</module>
     </modules>
 
    <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->

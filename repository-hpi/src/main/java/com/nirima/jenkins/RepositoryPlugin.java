@@ -34,11 +34,12 @@ import hudson.Extension;
 import hudson.Functions;
 import hudson.Plugin;
 import hudson.model.*;
-import hudson.util.IOUtils;
 import com.nirima.jenkins.repo.RepositoryContent;
 import com.nirima.jenkins.repo.RepositoryDirectory;
 import com.nirima.jenkins.repo.RepositoryElement;
 import jenkins.model.Jenkins;
+
+import org.apache.commons.io.IOUtils;
 import org.kohsuke.stapler.Stapler;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
@@ -202,7 +203,11 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
 
             InputStream is = content.getContent();
             // DL Element
-            IOUtils.copy(is, os);
+            try {
+            	IOUtils.copy(is, os);
+            } finally {
+				IOUtils.closeQuietly(is);
+			}
 
             os.flush();
 

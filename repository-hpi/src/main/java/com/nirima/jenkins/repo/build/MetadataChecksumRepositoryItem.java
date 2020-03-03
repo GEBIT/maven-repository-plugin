@@ -28,6 +28,7 @@ import hudson.maven.MavenBuild;
 import hudson.maven.reporters.MavenArtifact;
 import org.apache.commons.io.IOUtils;
 
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -61,7 +62,13 @@ public class MetadataChecksumRepositoryItem extends TextRepositoryItem {
     protected String generateContent() {
         try {
             MessageDigest md = MessageDigest.getInstance(algorithm.toUpperCase());
-            byte[] digest = md.digest(IOUtils.toByteArray(item.getContent()));
+            InputStream content = item.getContent();
+			byte[] digest;
+			try {
+				digest = md.digest(IOUtils.toByteArray(content));
+			} finally {
+				IOUtils.closeQuietly(content);
+			}
             String hex = new BigInteger(1, digest).toString(16);
 
             // Need to prepend with 0s if not the correct length

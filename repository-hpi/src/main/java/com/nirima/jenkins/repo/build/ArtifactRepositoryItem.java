@@ -23,13 +23,11 @@
  */
 package com.nirima.jenkins.repo.build;
 
-import com.nirima.jenkins.repo.RepositoryContent;
+import com.nirima.jenkins.repo.ArtifactRepositoryContent;
 import hudson.maven.MavenBuild;
 import hudson.maven.reporters.MavenArtifact;
-import hudson.model.AbstractBuild;
 import hudson.model.Run;
 import com.nirima.jenkins.repo.RepositoryDirectory;
-import com.nirima.jenkins.repo.RepositoryElement;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,7 +37,7 @@ import java.util.Date;
 /**
  * Represent a maven repository item.
  */
-public class ArtifactRepositoryItem implements RepositoryContent {
+public class ArtifactRepositoryItem implements ArtifactRepositoryContent {
 
     private MavenArtifact artifact;
     private Run<?,?>      build;
@@ -61,32 +59,39 @@ public class ArtifactRepositoryItem implements RepositoryContent {
         }
     }
 
-    public RepositoryDirectory getParent() {
+    @Override
+	public RepositoryDirectory getParent() {
         return directory;
     }
 
-    public void setParent(RepositoryDirectory parent)
+    @Override
+	public void setParent(RepositoryDirectory parent)
     {
         this.directory = parent;
     }
 
-    public String getPath() {
+    @Override
+	public String getPath() {
         return directory.getPath() + "/" + getName();
     }
 
-    public InputStream getContent() throws Exception {
+    @Override
+	public InputStream getContent() throws Exception {
         return new FileInputStream(getFile());
     }
 
-    public Date getLastModified() {
+    @Override
+	public Date getLastModified() {
         return new Date( getFile().lastModified() );
     }
 
-    public Long getSize() {
+    @Override
+	public Long getSize() {
         return getFile().length();
     }
 
-    public String getDescription() {
+    @Override
+	public String getDescription() {
         if( build instanceof MavenBuild ) {
             return "From Build #" + build.getNumber() + " of " + ((MavenBuild)build).getParentBuild().getParent()
                 .getFullName();
@@ -129,7 +134,8 @@ public class ArtifactRepositoryItem implements RepositoryContent {
         return artifact.groupId.replace('.','/') + "/" + artifact.artifactId + '/' + artifact.version + "/" + getName();
     }
 
-    public String getContentType() {
+    @Override
+	public String getContentType() {
         if( artifact.isPOM() )
             return "application/xml";
         if( artifact.type.equalsIgnoreCase("jar") )
@@ -138,7 +144,8 @@ public class ArtifactRepositoryItem implements RepositoryContent {
         return null; // We don't know..
     }
 
-    public Run<?,?> getBuild() {
+    @Override
+	public Run<?,?> getBuild() {
         return build;
     }
 }

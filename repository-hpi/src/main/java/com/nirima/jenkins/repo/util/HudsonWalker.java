@@ -39,12 +39,21 @@ import hudson.maven.MavenModuleSetBuild;
 import hudson.maven.reporters.MavenArtifact;
 import hudson.maven.reporters.MavenArtifactRecord;
 import hudson.model.*;
+import jenkins.model.Jenkins;
 
+import org.jenkinsci.plugins.pipeline.maven.GlobalPipelineMavenConfig;
+import org.jenkinsci.plugins.workflow.job.WorkflowJob;
+import org.jenkinsci.plugins.workflow.job.WorkflowRun;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by IntelliJ IDEA.
@@ -63,11 +72,11 @@ public class HudsonWalker {
      * @param visitor
      */
     public static void traverse(HudsonVisitor visitor) {
-        for (BuildableItemWithBuildWrappers item : Hudson.getInstance().getAllItems(BuildableItemWithBuildWrappers.class)) {
+        for (Job item : HudsonWalker.getSupportedJobs()) {
 
             visitor.visitProject(item);
 
-            List<? extends Run> runs = item.asProject().getBuilds();
+            List<? extends Run> runs = item.getBuilds();
             for (Run run : runs) {
                 traverse(visitor, run);
             }
@@ -78,11 +87,11 @@ public class HudsonWalker {
      * Visit projects and builds
      */
     public static void traverseProjectsAndBuilds(HudsonVisitor visitor ) {
-        for (BuildableItemWithBuildWrappers item : Hudson.getInstance().getAllItems(BuildableItemWithBuildWrappers.class)) {
+        for (Job item : HudsonWalker.getSupportedJobs()) {
 
             visitor.visitProject(item);
 
-            List<? extends Run> runs = item.asProject().getBuilds();
+            List<? extends Run> runs = item.getBuilds();
             for (Run run : runs) {
                  if (run instanceof MavenModuleSetBuild) {
                     MavenModuleSetBuild mmsb = (MavenModuleSetBuild) run;
@@ -112,13 +121,14 @@ public class HudsonWalker {
             if( repositoryAction instanceof ProjectRepositoryAction ) {
                 final ProjectRepositoryAction projectRepositoryAction = (ProjectRepositoryAction) repositoryAction;
 
-                AbstractProject item = (AbstractProject)Hudson.getInstance().getItem(projectRepositoryAction.getProjectName(), (Item)null);
-                if (item == null) {
-                	throw new RuntimeException("Project " + projectRepositoryAction.getProjectName() + " not found.");
-                }
+                Job item = (Job)Jenkins.get().getItem(projectRepositoryAction.getProjectName(), (Item)null);
+				if (item == null) {
+					throw new RuntimeException("Project " + projectRepositoryAction.getProjectName() + " not found.");
+				}
 
                 Optional<Run> r = Iterables.tryFind(item.getBuilds(), new Predicate<Run>() {
-                    public boolean apply(Run run) {
+                    @Override
+					public boolean apply(Run run) {
                         return run.getNumber() == projectRepositoryAction.getBuildNumber();
                     }
                 });
@@ -159,17 +169,52 @@ public class HudsonWalker {
 
             }
         } else {
-
-            RepositoryArtifactRecords records = run.getAction(RepositoryArtifactRecords.class);
-            if( records != null ) {
-                for(RepositoryArtifactRecord record : records.recordList ) {
-                    visitRepositoryRecord(visitor, run, record);
-                }
-            }
+        	boolean handled = visitPipelineMavenArtifacts(visitor, run);
+			if (!handled) {
+				RepositoryArtifactRecords records = run.getAction(RepositoryArtifactRecords.class);
+				if (records != null) {
+					for (RepositoryArtifactRecord record : records.recordList) {
+						visitRepositoryRecord(visitor, run, record);
+					}
+				}
+			}
         }
     }
 
-    private static void visitRepositoryRecord(HudsonVisitor visitor, Run build,
+	private static boolean visitPipelineMavenArtifacts(HudsonVisitor visitor, Run build) {
+		boolean handled = false;
+		try {
+			if (Jenkins.get().getPlugin("workflow-job") != null && build instanceof WorkflowRun) {
+				if (Jenkins.get().getPlugin("pipeline-maven") != null) {
+					List<org.jenkinsci.plugins.pipeline.maven.MavenArtifact> artifacts =
+							GlobalPipelineMavenConfig.get()
+									.getDao()
+									.getGeneratedArtifacts(build.getParent().getFullName(), build.getNumber());
+					log.trace("Visit Build {} artifacts {}", build, artifacts);
+					if (artifacts != null && artifacts.size() > 0) {
+						for (org.jenkinsci.plugins.pipeline.maven.MavenArtifact artifact : artifacts) {
+							visitor.visitArtifact(build,
+									new MavenArtifactData(artifact.getGroupId(),
+											artifact.getArtifactId(),
+											artifact.getBaseVersion(),
+											artifact.getClassifier(),
+											artifact.getType(),
+											artifact.getFileNameWithBaseVersion(),
+											artifact.isSnapshot()));
+						}
+					}
+					handled = true;
+				}
+			}
+		} catch (Throwable exc) {
+            log.error("Error fetching artifact details");
+            log.error("Error", exc);
+			// class loading errors becaue of missing plugins? ignore!
+		}
+		return handled;
+	}
+
+	private static void visitRepositoryRecord(HudsonVisitor visitor, Run build,
                                               RepositoryArtifactRecord artifacts) {
         log.trace("Visit Build {} artifacts {}", build, artifacts);
         try {
@@ -211,5 +256,29 @@ public class HudsonWalker {
 
     }
 
+    public static List<Job> getSupportedJobs() {
+    	List<Job> jobs = new LinkedList<>();
+		jobs.addAll(Jenkins.get()
+				.getAllItems(BuildableItemWithBuildWrappers.class)
+				.stream()
+				.map(job -> (Job) job.asProject())
+				.collect(Collectors.toList()));
+		if (Jenkins.get().getPlugin("workflow-job") != null) {
+			// NOTE: we are using iterator here to avoid class loading triggered by class instantiating and not by
+			// execution.
+			// See https://wiki.jenkins.io/display/JENKINS/Tips+for+optional+dependencies
+			List<WorkflowJob> pipelineJobs = Jenkins.get().getAllItems(WorkflowJob.class);
+			for (Iterator<WorkflowJob> it = pipelineJobs.iterator(); it.hasNext();) {
+				jobs.add(it.next());
+			}
+		}
+        Collections.sort(jobs, new Comparator<Job>() {
+            @Override
+            public int compare(Job item1, Job item2) {
+                return item1.getFullName().compareTo(item2.getFullName());
+            }
+        });
+        return jobs;
+    }
 
 }

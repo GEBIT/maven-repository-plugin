@@ -23,23 +23,11 @@
  */
 package com.nirima.jenkins.repo.util;
 
-import com.google.common.collect.Lists;
-import com.nirima.jenkins.repo.RepositoryElement;
-import com.nirima.jenkins.repo.build.ArtifactRepositoryItem;
-import hudson.maven.MavenBuild;
-import hudson.maven.MavenModule;
 import hudson.maven.MavenModuleSetBuild;
 import hudson.maven.reporters.MavenArtifact;
-import hudson.maven.reporters.MavenArtifactRecord;
 import hudson.model.AbstractBuild;
-import hudson.model.BuildableItemWithBuildWrappers;
+import hudson.model.Job;
 import hudson.model.Run;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-
 
 public abstract class HudsonVisitor {
 
@@ -51,7 +39,11 @@ public abstract class HudsonVisitor {
 
     public void visitArtifact(Run<?,?> build, MavenArtifact artifact)
     {}
-
-    public void visitProject(BuildableItemWithBuildWrappers item)
+    
+    public void visitArtifact(Run<?,?> build, MavenArtifactData artifact)
     {}
+
+    public void visitProject(Job<?, ?> item)
+    {}
+
 }

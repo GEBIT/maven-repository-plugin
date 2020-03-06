@@ -23,21 +23,13 @@
  */
 package com.nirima.jenkins.repo.project;
 
-import com.google.common.base.Function;
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
 import com.nirima.jenkins.repo.AbstractRepositoryDirectory;
 import com.nirima.jenkins.repo.RepositoryDirectory;
 import com.nirima.jenkins.repo.RepositoryElement;
-import com.nirima.jenkins.repo.build.ProjectBuildRepositoryRoot;
-import hudson.model.BuildableItem;
-import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Job;
 import jenkins.branch.MultiBranchProject;
-import jenkins.model.Jenkins;
 
 import java.util.Collection;
-import java.util.List;
 
 import static com.nirima.jenkins.repo.project.ProjectUtils.sanitizeName;
 

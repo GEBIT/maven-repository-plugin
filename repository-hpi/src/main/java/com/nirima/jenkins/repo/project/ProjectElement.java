@@ -26,7 +26,6 @@ package com.nirima.jenkins.repo.project;
 import com.google.common.collect.Lists;
 import com.nirima.jenkins.repo.RepositoryElement;
 import com.nirima.jenkins.repo.build.ProjectBuildRepositoryRoot;
-import hudson.model.BuildableItemWithBuildWrappers;
 import com.nirima.jenkins.repo.AbstractRepositoryDirectory;
 import com.nirima.jenkins.repo.RepositoryDirectory;
 import hudson.model.Job;

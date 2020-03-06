@@ -3,9 +3,11 @@ package com.nirima.jenkins;
 import com.nirima.jenkins.bridge.BridgeRepository;
 import com.nirima.jenkins.repo.build.ProjectBuildRepositoryRoot;
 import hudson.Extension;
-import hudson.model.AbstractBuild;
+import hudson.maven.MavenModuleSetBuild;
 import hudson.model.Action;
-import hudson.model.TransientBuildActionFactory;
+import hudson.model.Run;
+import jenkins.model.TransientActionFactory;
+
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 
@@ -21,30 +23,43 @@ import java.util.Collections;
  * @author Kohsuke Kawaguchi
  */
 @Extension
-public class TransientBuildActionFactoryImpl extends TransientBuildActionFactory {
+public class TransientBuildActionFactoryImpl extends TransientActionFactory<Run> {
     @Inject
     RepositoryPlugin plugin;
 
-    public Collection<? extends Action> createFor(AbstractBuild build) {
-        return Collections.singleton(new BuildActionImpl(build));
-    }
+	@Override
+	public Class<Run> type() {
+		return Run.class;
+	}
+
+	@Override
+	public Collection<? extends Action> createFor(Run build) {
+		if (build instanceof MavenModuleSetBuild || build.getHasArtifacts()) {
+			return Collections.singleton(new BuildActionImpl(build));
+		} else {
+			return Collections.emptyList();
+		}
+	}
 
     public class BuildActionImpl implements Action {
-        private final AbstractBuild build;
+        private final Run build;
 
-        public BuildActionImpl(AbstractBuild build) {
+        public BuildActionImpl(Run build) {
             this.build = build;
         }
 
-        public String getIconFileName() {
+        @Override
+		public String getIconFileName() {
             return plugin.getIconFileName();
         }
 
-        public String getDisplayName() {
+        @Override
+		public String getDisplayName() {
             return "Build Artifacts As Maven Repository";
         }
 
-        public String getUrlName() {
+        @Override
+		public String getUrlName() {
             return "maven-repository";
         }
 

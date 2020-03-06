@@ -35,11 +35,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Ordering;
 import com.nirima.jenkins.action.ProjectRepositoryAction;
 import com.nirima.jenkins.action.RepositoryAction;
+import com.nirima.jenkins.repo.util.HudsonWalker;
 
 import hudson.Extension;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Descriptor;
+import hudson.model.Job;
 import hudson.model.Run;
 import hudson.plugins.promoted_builds.PromotedBuildAction;
 import jenkins.model.Jenkins;
@@ -160,18 +162,11 @@ public class SelectionTypeProject extends SelectionType {
 
         @Override
         public String getDisplayName() {
-            return "Project";  //To change body of implemented methods use File | Settings | File Templates.
+            return "Project";
         }
 
-        public List<BuildableItemWithBuildWrappers> getJobs() {
-            List<BuildableItemWithBuildWrappers> jobs = Jenkins.getInstance().getAllItems(BuildableItemWithBuildWrappers.class);
-            Collections.sort(jobs, new Comparator<BuildableItemWithBuildWrappers>() {
-                @Override
-                public int compare(BuildableItemWithBuildWrappers item1, BuildableItemWithBuildWrappers item2) {
-                    return item1.getFullName().compareTo(item2.getFullName());
-                }
-            });
-            return jobs;
+        public List<Job> getJobs() {
+            return HudsonWalker.getSupportedJobs();
         }
     }
 

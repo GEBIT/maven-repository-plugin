@@ -38,6 +38,9 @@ public class ProjectUtils {
 						if (from instanceof ItemGroupDirectory) {
 							return (ItemGroupDirectory) from;
 						}
+						if (from instanceof RepositoryElement) {
+							return (RepositoryElement) from;
+						}
 
 						return null;
 					}

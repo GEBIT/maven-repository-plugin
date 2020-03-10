@@ -310,15 +310,6 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
     }
 
 
-    private Project getProject(String pathElement) {
-        for (Project project : Hudson.getInstance().getProjects()) {
-            if (project.getFullName().equals(pathElement))
-                return project;
-        }
-        return null;
-    }
-
-
     public static String DISPLAY_NAME = "Jenkins Maven Repository Server";
     public static String URL = "repository";
 }

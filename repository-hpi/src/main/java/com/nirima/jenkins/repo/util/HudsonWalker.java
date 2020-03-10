@@ -112,8 +112,10 @@ public class HudsonWalker {
             if( repositoryAction instanceof ProjectRepositoryAction ) {
                 final ProjectRepositoryAction projectRepositoryAction = (ProjectRepositoryAction) repositoryAction;
 
-                AbstractProject item = (AbstractProject)Hudson.getInstance().getItem(projectRepositoryAction.getProjectName());
-
+                AbstractProject item = (AbstractProject)Hudson.getInstance().getItem(projectRepositoryAction.getProjectName(), (Item)null);
+                if (item == null) {
+                	throw new RuntimeException("Project " + projectRepositoryAction.getProjectName() + " not found.");
+                }
 
                 Optional<Run> r = Iterables.tryFind(item.getBuilds(), new Predicate<Run>() {
                     public boolean apply(Run run) {

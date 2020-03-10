@@ -8,6 +8,9 @@
 //
 package com.nirima.jenkins.step;
 
+import static com.nirima.jenkins.RepositoryDefinitionProperty.ENV_VAR_JENKINS_REPOSITORY;
+import static com.nirima.jenkins.RepositoryDefinitionProperty.ENV_VAR_JENKINS_REPOSITORY_OLD;
+
 import java.net.MalformedURLException;
 import java.util.Set;
 
@@ -57,7 +60,7 @@ public class UpstreamRepositoryStep extends Step {
 					build.addAction(repositoryAction);
 					String repoUrl = repositoryAction.getUrl().toExternalForm();
 					build.addAction(getEnvContributingAction(repoUrl));
-					listener.getLogger().println("Setting environment Jenkins.Repository = " + repoUrl);
+					listener.getLogger().println("Setting environment " + ENV_VAR_JENKINS_REPOSITORY + "=" + repoUrl);
 				} catch (SelectionType.RepositoryDoesNotExistException x) {
 					listener.getLogger().println("You asked for an upstream repository, but it does not exist");
 					throw new RuntimeException(x);
@@ -90,11 +93,11 @@ public class UpstreamRepositoryStep extends Step {
 
 			@Override
 			public void buildEnvironment(Run<?, ?> build, EnvVars envVars) {
-				envVars.put("Jenkins.Repository", repoUrl);
+				envVars.put(ENV_VAR_JENKINS_REPOSITORY, repoUrl); // for cross-platform compatibility (JENKINS-31854)
+				envVars.put(ENV_VAR_JENKINS_REPOSITORY_OLD, repoUrl); // for backwards compatibility
 			}
 		};
 	}
-
 
 	@Extension
 	public static final class DescriptorImpl extends StepDescriptor {

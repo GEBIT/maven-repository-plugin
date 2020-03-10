@@ -29,7 +29,6 @@ import hudson.Extension;
 import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.*;
-import hudson.tasks.BuildWrapper;
 import hudson.tasks.BuildWrapperDescriptor;
 import jenkins.tasks.SimpleBuildWrapper;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -38,12 +37,15 @@ import org.kohsuke.stapler.export.ExportedBean;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
-import java.util.Map;
 
 @ExportedBean
 public class RepositoryDefinitionProperty extends SimpleBuildWrapper implements Serializable {
 
-    public SelectionType upstream;
+	public static final String ENV_VAR_JENKINS_REPOSITORY = "JENKINS_REPOSITORY";
+
+	public static final String ENV_VAR_JENKINS_REPOSITORY_OLD = "Jenkins.Repository";
+	
+	public SelectionType upstream;
 
     @DataBoundConstructor
     public RepositoryDefinitionProperty(SelectionType upstream) {
@@ -60,7 +62,7 @@ public class RepositoryDefinitionProperty extends SimpleBuildWrapper implements 
 
         @Override
         public boolean isApplicable(AbstractProject<?, ?> abstractProject) {
-            return true;  //To change body of implemented methods use File | Settings | File Templates.
+            return true;
         }
     }
 
@@ -78,8 +80,10 @@ public class RepositoryDefinitionProperty extends SimpleBuildWrapper implements 
         try {
             RepositoryAction repositoryAction = upstream.getAction(build);
             build.addAction(repositoryAction);
-            context.env("Jenkins.Repository", repositoryAction.getUrl().toExternalForm());
-            listener.getLogger().println("Setting environment Jenkins.Repository = " + repositoryAction.getUrl().toExternalForm());
+            String repoUrl = repositoryAction.getUrl().toExternalForm();
+            context.env(ENV_VAR_JENKINS_REPOSITORY, repoUrl); // for cross-platform compatibility (JENKINS-31854)
+			context.env(ENV_VAR_JENKINS_REPOSITORY_OLD, repoUrl); // for backwards compatibility
+			listener.getLogger().println("Setting environment " + ENV_VAR_JENKINS_REPOSITORY + "=" + repoUrl);
         } catch (SelectionType.RepositoryDoesNotExistException x) {
             listener.getLogger().println("You asked for an upstream repository, but it does not exist");
             throw new RuntimeException(x);
@@ -92,14 +96,14 @@ public class RepositoryDefinitionProperty extends SimpleBuildWrapper implements 
 
 
     public String getIconFileName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     public String getDisplayName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 
     public String getUrlName() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return null;
     }
 }

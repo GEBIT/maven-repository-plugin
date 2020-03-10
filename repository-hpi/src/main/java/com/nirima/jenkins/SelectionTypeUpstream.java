@@ -27,11 +27,9 @@ import com.nirima.jenkins.action.ProjectRepositoryAction;
 import com.nirima.jenkins.action.RepositoryAction;
 import hudson.Extension;
 import hudson.model.*;
-import jenkins.model.Jenkins;
-import org.kohsuke.stapler.DataBoundConstructor;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 
 public class SelectionTypeUpstream extends SelectionType {
@@ -46,15 +44,15 @@ public class SelectionTypeUpstream extends SelectionType {
         return build;
     }
 
-    public void setBuild(String buildId) {
+    public void setBuild(String build) {
         this.build = build;
     }
 
     @Override
-    public RepositoryAction getAction(Run<?,?> b) throws MalformedURLException, RepositoryDoesNotExistException {
+    public RepositoryAction getAction(Run<?,?> b) throws RepositoryDoesNotExistException {
 
         // What is the upstream project name?
-        Cause.UpstreamCause theCause = (Cause.UpstreamCause) b.getCause(Cause.UpstreamCause.class);
+        Cause.UpstreamCause theCause = b.getCause(Cause.UpstreamCause.class);
         String theProject;
         int    theBuild;
         if (theCause == null) {
@@ -76,6 +74,7 @@ public class SelectionTypeUpstream extends SelectionType {
 
     }
 
+    @Symbol("upstreamTrigger")
     @Extension
     public static final class DescriptorImpl extends Descriptor<SelectionType> {
 

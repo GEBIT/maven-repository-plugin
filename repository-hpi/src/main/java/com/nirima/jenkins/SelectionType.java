@@ -24,14 +24,12 @@
 package com.nirima.jenkins;
 
 import com.nirima.jenkins.action.RepositoryAction;
-import hudson.model.AbstractBuild;
 import hudson.model.Describable;
 import hudson.model.Descriptor;
 import hudson.model.Run;
 import jenkins.model.Jenkins;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
 
 
 public abstract class SelectionType implements Describable<SelectionType>, Serializable {
@@ -44,5 +42,5 @@ public abstract class SelectionType implements Describable<SelectionType>, Seria
         return Jenkins.getInstance().getDescriptorOrDie(getClass());
     }
 
-    public abstract RepositoryAction getAction(Run<?,?> build) throws MalformedURLException, RepositoryDoesNotExistException;
+    public abstract RepositoryAction getAction(Run<?,?> build) throws RepositoryDoesNotExistException;
 }

@@ -3,14 +3,11 @@ package com.nirima.jenkins;
 import com.nirima.jenkins.action.PathInRepositoryAction;
 import com.nirima.jenkins.action.RepositoryAction;
 import hudson.Extension;
-import hudson.model.AbstractBuild;
 import hudson.model.Descriptor;
 import hudson.model.Run;
-import jenkins.model.Jenkins;
-import org.kohsuke.stapler.DataBoundConstructor;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import org.jenkinsci.Symbol;
+import org.kohsuke.stapler.DataBoundConstructor;
 
 
 public class SelectionTypeSpecified extends SelectionType  {
@@ -30,10 +27,11 @@ public class SelectionTypeSpecified extends SelectionType  {
     }
 
     @Override
-    public RepositoryAction getAction(Run<?,?> build) throws MalformedURLException, RepositoryDoesNotExistException {
+    public RepositoryAction getAction(Run<?,?> build) {
         return new PathInRepositoryAction(path);
     }
 
+    @Symbol("upstreamPath")
     @Extension
     public static final class DescriptorImpl extends Descriptor<SelectionType> {
 

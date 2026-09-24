@@ -7,6 +7,7 @@ import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.Run;
 
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.net.MalformedURLException;
@@ -32,6 +33,7 @@ public class SelectionTypeSpecified extends SelectionType  {
         return new PathInRepositoryAction(path);
     }
 
+    @Symbol("upstreamPath")
     @Extension
     public static final class DescriptorImpl extends Descriptor<SelectionType> {
 

@@ -23,7 +23,7 @@
  */
 package com.nirima.jenkins.repo.build;
 
-import com.nirima.jenkins.repo.RepositoryContent;
+import com.nirima.jenkins.repo.ArtifactRepositoryContent;
 import com.nirima.jenkins.repo.RepositoryDirectory;
 
 import hudson.maven.MavenBuild;
@@ -38,7 +38,7 @@ import java.util.Date;
 /**
  * Represent a maven repository item.
  */
-public class ArtifactRepositoryItem implements RepositoryContent {
+public class ArtifactRepositoryItem implements ArtifactRepositoryContent {
 
     private MavenArtifact artifact;
     private Run<?,?>      build;
@@ -136,6 +136,7 @@ public class ArtifactRepositoryItem implements RepositoryContent {
         return null; // We don't know..
     }
 
+    @Override
     public Run<?,?> getBuild() {
         return build;
     }

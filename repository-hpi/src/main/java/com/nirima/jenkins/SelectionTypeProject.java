@@ -25,24 +25,23 @@ package com.nirima.jenkins;
 
 import com.nirima.jenkins.action.ProjectRepositoryAction;
 import com.nirima.jenkins.action.RepositoryAction;
+import com.nirima.jenkins.repo.util.HudsonWalker;
 
 import hudson.Extension;
-import hudson.model.AbstractBuild;
-import hudson.model.BuildableItemWithBuildWrappers;
 import hudson.model.Descriptor;
+import hudson.model.Job;
 import hudson.model.Run;
 import hudson.plugins.promoted_builds.PromotedBuildAction;
 
 import jenkins.model.Jenkins;
 
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 
 public class SelectionTypeProject extends SelectionType {
     public String project;
@@ -106,48 +105,31 @@ public class SelectionTypeProject extends SelectionType {
         return new ProjectRepositoryAction(project, id, suffix);
     }
 
-    private BuildableItemWithBuildWrappers getProject(final String project) {
-        BuildableItemWithBuildWrappers item =
-                Jenkins.get().getAllItems(BuildableItemWithBuildWrappers.class).stream().filter(
-                new Predicate<BuildableItemWithBuildWrappers>() {
-                    public boolean test(BuildableItemWithBuildWrappers buildableItemWithBuildWrappers) {
-                        return buildableItemWithBuildWrappers.getFullName().equals(project);
-                    }
-                }).findFirst().get();
-        return item;
+    private Job getProject(String project) {
+        return Jenkins.get().getAllItems(Job.class).stream()
+                .filter(job -> job.getFullName().equals(project))
+                .findFirst()
+                .orElseThrow(() -> new IllegalArgumentException("Project not found: " + project));
     }
 
     private int getLastSuccessfulBuildNumber(final String project) {
-        BuildableItemWithBuildWrappers item = getProject(project);
-
-        return item.asProject().getLastSuccessfulBuild().getNumber();
+        return getProject(project).getLastSuccessfulBuild().getNumber();
     }
 
     private int getPromotedBuildNumber(final String project, final String promoted) {
-        BuildableItemWithBuildWrappers item = getProject(project);
-
-
-        try
-        {
-            List<? extends Run> runs = item.asProject().getBuilds();
-            Comparator<AbstractBuild> ordering = Comparator.comparingInt(AbstractBuild::getNumber);
-            Optional<AbstractBuild> max = runs.stream().filter(new Predicate() {
-            public boolean test(Object o) {
-                AbstractBuild abstractBuild = (AbstractBuild)o;
-
-                PromotedBuildAction pba = abstractBuild.getAction(PromotedBuildAction.class);
-                return ( pba != null && pba.getPromotion(promoted) != null );
-
-            }
-            }).max(ordering);
-            return max.get().getNumber();
-        }
-        catch(Exception ex)
-        {
-            throw new RuntimeException("No promotion of type " + promoted + " in project " + project);
-        }
+        List<? extends Run> runs = getProject(project).getBuilds();
+        Optional<? extends Run> latestPromotion = runs.stream()
+                .filter(run -> {
+                    PromotedBuildAction action = run.getAction(PromotedBuildAction.class);
+                    return action != null && action.getPromotion(promoted) != null;
+                })
+                .max(Comparator.comparingInt(Run::getNumber));
+        return latestPromotion.orElseThrow(
+                () -> new IllegalStateException("No promotion of type " + promoted + " in project " + project))
+                .getNumber();
     }
 
+    @Symbol("upstreamProject")
     @Extension
     public static final class DescriptorImpl extends Descriptor<SelectionType> {
 
@@ -156,11 +138,8 @@ public class SelectionTypeProject extends SelectionType {
             return "Project";  //To change body of implemented methods use File | Settings | File Templates.
         }
 
-        public List<BuildableItemWithBuildWrappers> getJobs() {
-            List<BuildableItemWithBuildWrappers> jobs =
-                    new ArrayList<>(Jenkins.get().getAllItems(BuildableItemWithBuildWrappers.class));
-            jobs.sort(Comparator.comparing(BuildableItemWithBuildWrappers::getFullName));
-            return jobs;
+        public List<Job> getJobs() {
+            return HudsonWalker.getSupportedJobs();
         }
     }
 

@@ -26,7 +26,7 @@ package com.nirima.jenkins.repo.util;
 import hudson.maven.MavenModuleSetBuild;
 import hudson.maven.reporters.MavenArtifact;
 import hudson.model.AbstractBuild;
-import hudson.model.BuildableItemWithBuildWrappers;
+import hudson.model.Job;
 import hudson.model.Run;
 
 public abstract class HudsonVisitor {
@@ -40,6 +40,9 @@ public abstract class HudsonVisitor {
     public void visitArtifact(Run<?,?> build, MavenArtifact artifact)
     {}
 
-    public void visitProject(BuildableItemWithBuildWrappers item)
+    public void visitArtifact(Run<?, ?> build, MavenArtifactData artifact)
+    {}
+
+    public void visitProject(Job<?, ?> item)
     {}
 }

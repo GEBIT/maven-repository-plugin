@@ -33,6 +33,7 @@ import hudson.model.ParametersAction;
 import hudson.model.Run;
 import hudson.model.RunParameterValue;
 
+import org.jenkinsci.Symbol;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.net.MalformedURLException;
@@ -79,6 +80,7 @@ public class SelectionTypeUpstream extends SelectionType {
 
     }
 
+    @Symbol("upstreamTrigger")
     @Extension
     public static final class DescriptorImpl extends Descriptor<SelectionType> {
 

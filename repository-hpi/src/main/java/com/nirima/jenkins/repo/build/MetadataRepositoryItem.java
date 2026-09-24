@@ -23,6 +23,10 @@
  */
 package com.nirima.jenkins.repo.build;
 
+import com.nirima.jenkins.repo.ArtifactRepositoryContent;
+import com.nirima.jenkins.repo.RepositoryContent;
+import com.nirima.jenkins.repo.util.MavenArtifactData;
+
 import hudson.maven.MavenBuild;
 import hudson.maven.reporters.MavenArtifact;
 import hudson.model.Run;
@@ -31,6 +35,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a {@code maven-metadata.xml} file.
@@ -41,7 +46,7 @@ public class MetadataRepositoryItem extends TextRepositoryItem {
     private static final String UFMT_FORMAT_PATTERN = "yyyyMMddHHmmss";
     private Run<?,?> build;
     private String groupId, artifactId, version;
-    private Map<MavenArtifact,ArtifactRepositoryItem> items = new HashMap<>();
+    private final Map<ArtifactType, ArtifactRepositoryContent> items = new HashMap<>();
 
     private static String formatDateVersion(Date date, int buildNo) {
         // we used to tack the build number on here, but that causes problems because the build
@@ -57,10 +62,14 @@ public class MetadataRepositoryItem extends TextRepositoryItem {
     }
 
     public MetadataRepositoryItem(Run<?,?> build, MavenArtifact artifact) {
+        this(build, artifact.groupId, artifact.artifactId, artifact.version);
+    }
+
+    public MetadataRepositoryItem(Run<?, ?> build, String groupId, String artifactId, String version) {
         this.build      = build;
-        this.groupId    = artifact.groupId;
-        this.artifactId = artifact.artifactId;
-        this.version    = artifact.version;
+        this.groupId    = groupId;
+        this.artifactId = artifactId;
+        this.version    = version;
     }
 
     public String getPath() {
@@ -68,7 +77,19 @@ public class MetadataRepositoryItem extends TextRepositoryItem {
     }
 
     public void addArtifact(MavenArtifact artifact, ArtifactRepositoryItem item) {
-        this.items.put(artifact, item);
+        addArtifact(artifact.classifier, artifact.type, item);
+    }
+
+    public void addArtifact(MavenArtifactData artifact, ArtifactRepositoryContent item) {
+        addArtifact(artifact.getClassifier(), artifact.getType(), item);
+    }
+
+    private void addArtifact(String classifier, String type, ArtifactRepositoryContent item) {
+        ArtifactType artifactType = new ArtifactType(classifier, type);
+        ArtifactRepositoryContent current = items.get(artifactType);
+        if (current == null || item.getLastModified().after(current.getLastModified())) {
+            items.put(artifactType, item);
+        }
     }
 
     public String getName() {
@@ -77,20 +98,18 @@ public class MetadataRepositoryItem extends TextRepositoryItem {
 
     public Date getLastModified() {
         long lastModified = 0L;
-        for (ArtifactRepositoryItem item : items.values()) {
+        for (RepositoryContent item : items.values()) {
             lastModified = Math.max(lastModified, item.getLastModified().getTime());
         }
         return new Date(lastModified);
     }
 
     public String getDescription() {
-        if( build instanceof MavenBuild ) {
-            return "From Build #" + build.getNumber() + " of " + ((MavenBuild)build).getParentBuild().getParent()
-                .getName();
-    }
-        else {
-            return "From Build #" + build.getNumber() + " of " + build.getDisplayName();
+        if (build instanceof MavenBuild) {
+            return "From Build #" + build.getNumber() + " of "
+                    + ((MavenBuild) build).getParentBuild().getParent().getFullName();
         }
+        return "From Build #" + build.getNumber() + " of " + build.getParent().getFullName();
     }
 
     public String getContentType() {
@@ -111,9 +130,9 @@ public class MetadataRepositoryItem extends TextRepositoryItem {
         // It is possible that "items" contains many entries for the same artifact; we
         // just want the latest.
 
-        Map<String,Entry> entryToBuild = new HashMap<>();
+        Map<String, Entry> entryToBuild = new HashMap<>();
 
-        for (Map.Entry<MavenArtifact,ArtifactRepositoryItem> entry : items.entrySet()) {
+        for (Map.Entry<ArtifactType, ArtifactRepositoryContent> entry : items.entrySet()) {
 
             Entry e = new Entry(entry);
             String id = e.toString();
@@ -142,13 +161,11 @@ public class MetadataRepositoryItem extends TextRepositoryItem {
     }
 
     class Entry {
-        MavenArtifact          theArtifact;
-        ArtifactRepositoryItem theItem;
+        private final ArtifactType theArtifact;
+        private final ArtifactRepositoryContent theItem;
 
-        public Entry(Map.Entry<MavenArtifact, ArtifactRepositoryItem> entry)
-        {
+        public Entry(Map.Entry<ArtifactType, ArtifactRepositoryContent> entry) {
             theArtifact = entry.getKey();
-
             theItem = entry.getValue();
         }
 
@@ -180,6 +197,33 @@ public class MetadataRepositoryItem extends TextRepositoryItem {
 
         public boolean isNewerThan(Entry otherEntry) {
             return theItem.getLastModified().after(otherEntry.theItem.getLastModified());
+        }
+    }
+
+    private static final class ArtifactType {
+        private final String classifier;
+        private final String type;
+
+        private ArtifactType(String classifier, String type) {
+            this.classifier = classifier;
+            this.type = type;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof ArtifactType)) {
+                return false;
+            }
+            ArtifactType that = (ArtifactType) other;
+            return Objects.equals(classifier, that.classifier) && Objects.equals(type, that.type);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(classifier, type);
         }
     }
 

@@ -46,6 +46,9 @@ import java.net.MalformedURLException;
 @ExportedBean
 public class RepositoryDefinitionProperty extends SimpleBuildWrapper implements Serializable {
 
+    public static final String ENV_VAR_JENKINS_REPOSITORY = "JENKINS_REPOSITORY";
+    public static final String ENV_VAR_JENKINS_REPOSITORY_OLD = "Jenkins.Repository";
+
     public SelectionType upstream;
 
     @DataBoundConstructor
@@ -81,8 +84,11 @@ public class RepositoryDefinitionProperty extends SimpleBuildWrapper implements 
         try {
             RepositoryAction repositoryAction = upstream.getAction(build);
             build.addAction(repositoryAction);
-            context.env("Jenkins.Repository", repositoryAction.getUrl().toExternalForm());
-            listener.getLogger().println("Setting environment Jenkins.Repository = " + repositoryAction.getUrl().toExternalForm());
+            String repositoryUrl = repositoryAction.getUrl().toExternalForm();
+            context.env(ENV_VAR_JENKINS_REPOSITORY, repositoryUrl);
+            context.env(ENV_VAR_JENKINS_REPOSITORY_OLD, repositoryUrl);
+            listener.getLogger().println(
+                    "Setting environment " + ENV_VAR_JENKINS_REPOSITORY + "=" + repositoryUrl);
         } catch (SelectionType.RepositoryDoesNotExistException x) {
             listener.getLogger().println("You asked for an upstream repository, but it does not exist");
             throw new RuntimeException(x);

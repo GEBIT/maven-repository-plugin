@@ -1,20 +1,22 @@
 <div>
-    If selected, this allows you to define a variable - Jenkins.Repository - that will be present in the Maven
-    environment that points to the specified
-    repository.
+    If selected, this defines <code>JENKINS_REPOSITORY</code> (and <code>Jenkins.Repository</code> for backwards
+    compatibility) in the Maven environment with the URL of the specified repository.
     <br/>
     The best way of using this is to create a profile in the Jenkins settings.xml:
     <br/>
 
     <pre>
-
-
         &lt;profile&gt;
-            &lt;id&gt;jenkins&lt;/id&gt;
+            &lt;id&gt;jenkins-maven-upstream&lt;/id&gt;
+            &lt;activation&gt;
+                &lt;property&gt;
+                    &lt;name&gt;env.JENKINS_REPOSITORY&lt;/name&gt;
+                &lt;/property&gt;
+            &lt;/activation&gt;
             &lt;repositories&gt;
                 &lt;repository&gt;
                     &lt;id&gt;jenkins&lt;/id&gt;
-                    &lt;url&gt;${env.Jenkins.Repository}&lt;/url&gt;
+                    &lt;url&gt;${env.JENKINS_REPOSITORY}&lt;/url&gt;
                     &lt;releases&gt;
                         &lt;enabled&gt;true&lt;/enabled&gt;
                     &lt;/releases&gt;
@@ -26,7 +28,7 @@
             &lt;pluginRepositories&gt;
                 &lt;pluginRepository&gt;
                     &lt;id&gt;jenkins&lt;/id&gt;
-                    &lt;url&gt;${env.Jenkins.Repository}&lt;/url&gt;
+                    &lt;url&gt;${env.JENKINS_REPOSITORY}&lt;/url&gt;
                     &lt;releases&gt;
                         &lt;enabled&gt;true&lt;/enabled&gt;
                     &lt;/releases&gt;
@@ -36,8 +38,7 @@
                 &lt;/pluginRepository&gt;
             &lt;/pluginRepositories&gt;
         &lt;/profile&gt;
-
     </pre>
     <br/>
-    This profile is then enabled by adding "-Pjenkins" to your maven build options.
+    This profile is automatically enabled when an upstream repository is selected.
 </div>

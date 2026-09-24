@@ -1,5 +1,8 @@
 package com.nirima.jenkins.step;
 
+import static com.nirima.jenkins.RepositoryDefinitionProperty.ENV_VAR_JENKINS_REPOSITORY;
+import static com.nirima.jenkins.RepositoryDefinitionProperty.ENV_VAR_JENKINS_REPOSITORY_OLD;
+
 import com.google.common.collect.ImmutableSet;
 import com.nirima.jenkins.SelectionType;
 import com.nirima.jenkins.action.RepositoryAction;
@@ -46,7 +49,7 @@ public class UpstreamRepositoryStep extends Step {
                     String repositoryUrl = repositoryAction.getUrl().toExternalForm();
                     build.addAction(getEnvContributingAction(repositoryUrl));
                     listener.getLogger().println(
-                            "Setting environment Jenkins.Repository = " + repositoryUrl);
+                            "Setting environment " + ENV_VAR_JENKINS_REPOSITORY + "=" + repositoryUrl);
                 } catch (SelectionType.RepositoryDoesNotExistException e) {
                     listener.getLogger().println("You asked for an upstream repository, but it does not exist");
                     throw new IllegalStateException("The requested upstream repository does not exist", e);
@@ -78,7 +81,8 @@ public class UpstreamRepositoryStep extends Step {
 
             @Override
             public void buildEnvironment(Run<?, ?> build, EnvVars envVars) {
-                envVars.put("Jenkins.Repository", repositoryUrl);
+                envVars.put(ENV_VAR_JENKINS_REPOSITORY, repositoryUrl);
+                envVars.put(ENV_VAR_JENKINS_REPOSITORY_OLD, repositoryUrl);
             }
         };
     }

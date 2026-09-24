@@ -1,5 +1,6 @@
 <div>
-    If selected, this defines Jenkins.Repository as the URL of the specified repository.
+    Configures the upstream repository by defining <code>JENKINS_REPOSITORY</code> (and
+    <code>Jenkins.Repository</code> for backwards compatibility) in the Maven environment.
     <br/>
     The recommended way of using this is to create a profile in the Jenkins settings.xml:
     <br/>
@@ -9,13 +10,13 @@
             &lt;id&gt;jenkins-maven-upstream&lt;/id&gt;
             &lt;activation&gt;
                 &lt;property&gt;
-                    &lt;name&gt;env.Jenkins.Repository&lt;/name&gt;
+                    &lt;name&gt;env.JENKINS_REPOSITORY&lt;/name&gt;
                 &lt;/property&gt;
             &lt;/activation&gt;
             &lt;repositories&gt;
                 &lt;repository&gt;
                     &lt;id&gt;jenkins&lt;/id&gt;
-                    &lt;url&gt;${env.Jenkins.Repository}&lt;/url&gt;
+                    &lt;url&gt;${env.JENKINS_REPOSITORY}&lt;/url&gt;
                     &lt;releases&gt;
                         &lt;enabled&gt;true&lt;/enabled&gt;
                     &lt;/releases&gt;
@@ -27,7 +28,7 @@
             &lt;pluginRepositories&gt;
                 &lt;pluginRepository&gt;
                     &lt;id&gt;jenkins&lt;/id&gt;
-                    &lt;url&gt;${env.Jenkins.Repository}&lt;/url&gt;
+                    &lt;url&gt;${env.JENKINS_REPOSITORY}&lt;/url&gt;
                     &lt;releases&gt;
                         &lt;enabled&gt;true&lt;/enabled&gt;
                     &lt;/releases&gt;
@@ -39,5 +40,8 @@
         &lt;/profile&gt;
     </pre>
     <br/>
-    This profile is then automatically enabled.
+    This profile is automatically enabled when the step selects an upstream repository.
+    <br/>
+    Execute the step before any Maven steps. For pipeline jobs, use the Pipeline Maven Integration Plugin's
+    <code>withMaven { ... }</code> step so Maven artifacts are available as an upstream repository.
 </div>

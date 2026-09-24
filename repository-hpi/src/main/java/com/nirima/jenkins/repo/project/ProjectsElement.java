@@ -28,16 +28,10 @@ import com.nirima.jenkins.repo.RepositoryDirectory;
 import com.nirima.jenkins.repo.RepositoryElement;
 
 import edu.umd.cs.findbugs.annotations.NonNull;
-import edu.umd.cs.findbugs.annotations.Nullable;
-
-import hudson.model.BuildableItem;
-import hudson.model.Hudson;
 
 import jenkins.model.Jenkins;
 
 import java.util.Collection;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 public class ProjectsElement extends AbstractRepositoryDirectory implements RepositoryDirectory {
     public ProjectsElement(RepositoryDirectory parent) {
@@ -50,26 +44,9 @@ public class ProjectsElement extends AbstractRepositoryDirectory implements Repo
     }
 
     @NonNull
+    @Override
     public Collection<RepositoryElement> getChildren() {
-
-        return ProjectUtils.getChildren(this,
-                Jenkins.get().getAllItems(BuildableItem.class).stream().filter(new Predicate<BuildableItem>() {
-                    @Override
-                    public boolean test(@Nullable BuildableItem input) {
-                        if( input == null )
-                            return false;
-
-                        // top level only.
-                        if( input.getParent() instanceof Hudson)
-                            return true;
-
-                        if( input.getParent() instanceof jenkins.branch.OrganizationFolder )
-                            return true;
-
-                        return false;
-                    }
-                }).collect(Collectors.toList()));
-
+        return ProjectUtils.getChildren(this, Jenkins.get().getItems());
     }
 
     public RepositoryElement getChild(String element) {

@@ -49,7 +49,7 @@ public class ProjectReference implements Serializable {
 
     Run build = null;
     for (Job j : Jenkins.get().getAllItems(Job.class)) {
-      if (j.getName().equals(project)) {
+      if (j.getFullName().equals(project)) {
         // Correct job
         build = j.getBuildByNumber(Integer.parseInt(buildNumber));
       }
@@ -59,9 +59,9 @@ public class ProjectReference implements Serializable {
 
   private Run getMultiBranchProject(String element, String job, int buildNumber) {
     for (MultiBranchProject j : Jenkins.get().getAllItems(MultiBranchProject.class)) {
-      if (j.getName().equals(element)) {
+      if (j.getFullName().equals(element)) {
         for (Object j2 : j.getAllJobs() )  {
-          if (((Job)j2).getName().equals(job)) {
+          if (((Job)j2).getFullName().equals(job)) {
             // Correct job
             return ((Job)j2).getBuildByNumber(buildNumber);
           }

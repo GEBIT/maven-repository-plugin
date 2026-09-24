@@ -38,6 +38,7 @@ import jenkins.model.Jenkins;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -110,7 +111,7 @@ public class SelectionTypeProject extends SelectionType {
                 Jenkins.get().getAllItems(BuildableItemWithBuildWrappers.class).stream().filter(
                 new Predicate<BuildableItemWithBuildWrappers>() {
                     public boolean test(BuildableItemWithBuildWrappers buildableItemWithBuildWrappers) {
-                        return buildableItemWithBuildWrappers.getName().equals(project);
+                        return buildableItemWithBuildWrappers.getFullName().equals(project);
                     }
                 }).findFirst().get();
         return item;
@@ -156,7 +157,10 @@ public class SelectionTypeProject extends SelectionType {
         }
 
         public List<BuildableItemWithBuildWrappers> getJobs() {
-            return Jenkins.get().getAllItems(BuildableItemWithBuildWrappers.class);
+            List<BuildableItemWithBuildWrappers> jobs =
+                    new ArrayList<>(Jenkins.get().getAllItems(BuildableItemWithBuildWrappers.class));
+            jobs.sort(Comparator.comparing(BuildableItemWithBuildWrappers::getFullName));
+            return jobs;
         }
     }
 

@@ -108,7 +108,12 @@ public class HudsonWalker {
             if( repositoryAction instanceof ProjectRepositoryAction ) {
                 final ProjectRepositoryAction projectRepositoryAction = (ProjectRepositoryAction) repositoryAction;
 
-                AbstractProject item = (AbstractProject)Jenkins.get().getItem(projectRepositoryAction.getProjectName());
+                AbstractProject item = Jenkins.get().getItemByFullName(
+                        projectRepositoryAction.getProjectName(), AbstractProject.class);
+                if (item == null) {
+                    throw new IllegalStateException(
+                            "Project " + projectRepositoryAction.getProjectName() + " not found.");
+                }
 
 
                 List<? extends Run> runs = item.getBuilds();

@@ -37,6 +37,7 @@ import com.nirima.jenkins.webdav.interfaces.IMethodFactory;
 import hudson.Extension;
 import hudson.Functions;
 import hudson.Plugin;
+import hudson.Util;
 import hudson.model.Build;
 import hudson.model.Project;
 import hudson.model.RootAction;
@@ -242,15 +243,17 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
     }
 
 
-    private void printHeader(OutputStream os,StaplerRequest req, RepositoryDirectory directory) throws IOException {
+    void printHeader(OutputStream os, StaplerRequest req, RepositoryDirectory directory) throws IOException {
+        String path = Util.escape(directory.getPath());
+        String contextPath = Util.escape(req.getContextPath());
         String title = "<html>\n" +
                 "  <head>\n" +
-                "    <title>Index of " + directory.getPath() + "</title>\n" +
+                "    <title>Index of " + path + "</title>\n" +
                 "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\n" +
-                "    <link rel=\"stylesheet\" href=\"" + req.getContextPath() + "/plugin/repository/css/repository-style.css\" type=\"text/css\" media=\"screen\" title=\"no title\" charset=\"utf-8\">\n" +
+                "    <link rel=\"stylesheet\" href=\"" + contextPath + "/plugin/repository/css/repository-style.css\" type=\"text/css\" media=\"screen\" title=\"no title\" charset=\"utf-8\">\n" +
                 "  </head>\n" +
                 "  <body>\n" +
-                "    <h1>Index of " + directory.getPath() + "</h1>\n" +
+                "    <h1>Index of " + path + "</h1>\n" +
                 "    <table cellspacing=\"10\">\n" +
                 "      <tr>\n" +
                 "        <th align=\"left\">Name</th>\n" +
@@ -283,15 +286,18 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
         os.write(footer.getBytes(StandardCharsets.UTF_8));
     }
 
-    private void printDirEntry(OutputStream os, RepositoryElement item) throws IOException {
+    void printDirEntry(OutputStream os, RepositoryElement item) throws IOException {
 
         String name = item.getName();
+        String href = Util.fullEncode(name);
         String lastModified = "";
         String size = "";
         String description = "";
 
-        if (item instanceof RepositoryDirectory)
+        if (item instanceof RepositoryDirectory) {
             name += "/";
+            href += "/";
+        }
         if ( item instanceof RepositoryContent)
         {
          //   lastModified = ((RepositoryContent)item).getLastModified();
@@ -302,7 +308,7 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
 
          String entry = "      <tr>\n" +
                 "            <td>\n" +
-                "                              <a href=\"" + name + "\">" + name + "</a>\n" +
+                "                              <a href=\"" + Util.escape(href) + "\">" + Util.escape(name) + "</a>\n" +
                 "                          </td>\n" +
                 "            <td>\n" +
                 "              " + lastModified + "\n" +
@@ -311,7 +317,7 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
                 "                   " + size + "\n" +
                 "                          </td>\n" +
                 "            <td>\n" +
-                "              " + description + "\n" +
+                "              " + Util.escape(description) + "\n" +
                 "            </td>\n" +
                 "          </tr>";
 

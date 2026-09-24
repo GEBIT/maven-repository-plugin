@@ -27,6 +27,7 @@ import com.nirima.jenkins.repo.RepositoryContent;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.Date;
@@ -59,7 +60,10 @@ public class MetadataChecksumRepositoryItem extends TextRepositoryItem {
     protected String generateContent() {
         try {
             MessageDigest md = MessageDigest.getInstance(algorithm.toUpperCase());
-            byte[] digest = md.digest(IOUtils.toByteArray(item.getContent()));
+            byte[] digest;
+            try (InputStream content = item.getContent()) {
+                digest = md.digest(IOUtils.toByteArray(content));
+            }
             String hex = new BigInteger(1, digest).toString(16);
 
             // Need to prepend with 0s if not the correct length

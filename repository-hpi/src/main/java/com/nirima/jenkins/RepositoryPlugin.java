@@ -209,9 +209,10 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
             if( contentType != null )
                 rsp.setContentType(contentType);
 
-            InputStream is = content.getContent();
-            // DL Element
-            IOUtils.copy(is, os);
+            try (InputStream is = content.getContent()) {
+                // DL Element
+                IOUtils.copy(is, os);
+            }
 
             os.flush();
 

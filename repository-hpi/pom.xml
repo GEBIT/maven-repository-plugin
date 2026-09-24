@@ -68,21 +68,16 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>commons-net</groupId>
-                <artifactId>commons-net</artifactId>
-                <version>3.8.0</version>
-            </dependency>
-            <dependency>
                 <groupId>io.jenkins.tools.bom</groupId>
-                <artifactId>bom-2.289.x</artifactId>
-                <version>1246.va_b_50630c1d19</version>
+                <artifactId>bom-${jenkins.baseline}.x</artifactId>
+                <version>5054.v620b_5d2b_d5e6</version>
                 <scope>import</scope>
                 <type>pom</type>
             </dependency>
             <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-lang3</artifactId>
-                <version>3.12.0</version>
+                <groupId>javax.annotation</groupId>
+                <artifactId>javax.annotation-api</artifactId>
+                <version>1.3.2</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -94,7 +89,6 @@
 
         <dependency>
             <groupId>org.jenkins-ci.main</groupId>
-            <version>3.16</version>
             <artifactId>maven-plugin</artifactId>
             <exclusions>
                 <exclusion>
@@ -112,7 +106,6 @@
         <dependency>
             <groupId>org.jenkins-ci.plugins</groupId>
             <artifactId>promoted-builds</artifactId>
-            <version>873.v6149db_d64130</version>
             <optional>true</optional>
         </dependency>
 
@@ -126,7 +119,6 @@
             <artifactId>matrix-project</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>

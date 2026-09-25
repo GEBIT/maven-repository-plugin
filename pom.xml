@@ -57,6 +57,18 @@
     </developers>
 
     <properties>
+        <!-- GEBIT: versions to be used for gebit-build support -->
+        <java.version>21</java.version>
+        <version.tiles>2.8-gebit42</version.tiles>
+        <version.build>3.17.0</version.build>
+        <version.gebit-build-extension>2.1.0</version.gebit-build-extension>
+        <version.gebit-forked>1.1.0</version.gebit-forked>
+        <project.build-name>maven-repository-plugin</project.build-name>
+        <tiles.applyBefore>com.nirima.jenkins.repository:pom</tiles.applyBefore>
+        <tiles.mergeTarget>${tiles.applyBefore}</tiles.mergeTarget>
+        <flow.commandsAfterVersion>xml-editor:replace@update-version-in-enkins-maven-plugin -Dversion.new=@{version} -N</flow.commandsAfterVersion>
+        <!-- GEBIT: end -->
+
         <jenkins.version>2.289.1</jenkins.version>
         <gitHubRepo>jenkinsci/maven-repository-plugin</gitHubRepo>
     </properties>
@@ -91,5 +103,54 @@
             <url>https://repo.jenkins-ci.org/public/</url>
         </pluginRepository>
     </pluginRepositories>
+
+    <build>
+        <plugins>
+            <!-- GEBIT: Tiles -->
+            <plugin>
+                <groupId>io.repaint.maven</groupId>
+                <artifactId>tiles-maven-plugin</artifactId>
+                <version>${version.tiles}</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <applyBefore>${tiles.applyBefore}</applyBefore>
+                    <mergeTarget>${tiles.mergeTarget}</mergeTarget>
+                    <tiles>
+                        <tile>de.gebit.build.forked.tile:jenkins-plugin:${version.gebit-forked}</tile>
+                    </tiles>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>de.gebit.build.maven</groupId>
+                <artifactId>xml-editor-maven-plugin</artifactId>
+                <version>1.0.14</version>
+                <inherited>false</inherited>
+                <executions>
+                    <execution>
+                        <id>update-version-in-enkins-maven-plugin</id>
+                        <configuration>
+                            <targetFile>jenkins-maven-plugin/pom.xml</targetFile>
+                            <xpathReplacements>
+                                <xpathReplacement>
+                                    <xpath>/project/version</xpath>
+                                    <replacement>${version.new}</replacement>
+                                </xpathReplacement>
+                            </xpathReplacements>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- GEBIT: end -->
+        </plugins>
+        <!-- GEBIT: Extensions -->
+        <extensions>
+            <extension>
+                <groupId>de.gebit.build.maven</groupId>
+                <artifactId>gebit-build-extension</artifactId>
+                <version>${version.gebit-build-extension}</version>
+            </extension>
+        </extensions>
+        <!-- GEBIT: end -->
+    </build>
 
 </project>

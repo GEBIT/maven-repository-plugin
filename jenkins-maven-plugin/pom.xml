@@ -21,6 +21,13 @@
   <version>1.11-SNAPSHOT</version>
 
   <properties>
+    <!-- GEBIT: versions to be used for gebit-build support -->
+    <version.tiles>2.8-gebit42</version.tiles>
+    <version.build>3.17.0</version.build>
+    <version.gebit-build-extension>2.1.0</version.gebit-build-extension>
+    <version.gebit-forked>1.1.0</version.gebit-forked>
+    <!-- GEBIT: end -->
+
     <mavenVersion>3.8.5</mavenVersion>
     <spotbugs.skip>true</spotbugs.skip>
   </properties>
@@ -78,6 +85,19 @@
 
   <build>
     <plugins>
+      <!-- GEBIT: Tiles -->
+      <plugin>
+        <groupId>io.repaint.maven</groupId>
+        <artifactId>tiles-maven-plugin</artifactId>
+        <version>${version.tiles}</version>
+        <extensions>true</extensions>
+        <configuration>
+          <tiles>
+            <tile>de.gebit.build.forked.tile:maven-plugin:${version.gebit-forked}</tile>
+          </tiles>
+        </configuration>
+      </plugin>
+      <!-- GEBIT: end -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-plugin-plugin</artifactId>
@@ -101,6 +121,15 @@
         </executions>
       </plugin>
     </plugins>
+    <!-- GEBIT: Extensions -->
+    <extensions>
+      <extension>
+        <groupId>de.gebit.build.maven</groupId>
+        <artifactId>gebit-build-extension</artifactId>
+        <version>${version.gebit-build-extension}</version>
+      </extension>
+    </extensions>
+    <!-- GEBIT: end -->
   </build>
 
   <repositories>

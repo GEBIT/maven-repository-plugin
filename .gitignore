@@ -1,3 +1,11 @@
+# GEBIT start
+eclipse-target/
+.settings/
+.factorypath
+.project
+.classpath
+# GEBIT end
+
 target
 work
 *.iml

@@ -18,7 +18,7 @@ public class PathInRepositoryAction extends RepositoryAction {
 
         URL url = new URL(Jenkins.get().getRootUrl());
 
-        url = new URL(url, "plugin/repository");
+        url = new URL(url, "plugin/repository-gebit");
 
         url = new URL(url, subPath);
 

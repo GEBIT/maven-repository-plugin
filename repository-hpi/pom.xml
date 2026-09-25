@@ -7,10 +7,8 @@
         <version>1.11-SNAPSHOT</version>
     </parent>
 
-    <groupId>jenkins</groupId>
-    <artifactId>repository</artifactId>
+    <artifactId>repository-gebit</artifactId>
     <name>Jenkins Maven Repository Server Plugin</name>
-    <version>1.11-SNAPSHOT</version>
     <packaging>hpi</packaging>
 
     <url>https://github.com/jenkinsci/maven-repository-plugin</url>

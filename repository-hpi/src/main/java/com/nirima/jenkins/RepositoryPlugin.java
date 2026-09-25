@@ -69,7 +69,7 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
     private static final Logger logger = LoggerFactory.getLogger(RepositoryPlugin.class);
 
     public String getIconFileName() {
-        return Functions.getResourcePath()+"/plugin/repository/static/icons/repository.svg";
+        return Functions.getResourcePath()+"/plugin/repository-gebit/static/icons/repository.svg";
     }
 
     public String getDisplayName() {
@@ -77,7 +77,7 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
     }
 
     public String getUrlName() {
-        return "plugin/repository";
+        return "plugin/repository-gebit";
     }
 
     private ServletContext context;
@@ -162,7 +162,7 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
             return;
         }
 
-        serveRequest(new BridgeRepository(null), req.getContextPath()+"/plugin/repository");
+        serveRequest(new BridgeRepository(null), req.getContextPath()+"/plugin/repository-gebit");
     }
 
     public void serveRequest(IDavRepo repo, String root) {
@@ -250,7 +250,7 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
                 "  <head>\n" +
                 "    <title>Index of " + path + "</title>\n" +
                 "    <meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\"/>\n" +
-                "    <link rel=\"stylesheet\" href=\"" + contextPath + "/plugin/repository/css/repository-style.css\" type=\"text/css\" media=\"screen\" title=\"no title\" charset=\"utf-8\">\n" +
+                "    <link rel=\"stylesheet\" href=\"" + contextPath + "/plugin/repository-gebit/css/repository-style.css\" type=\"text/css\" media=\"screen\" title=\"no title\" charset=\"utf-8\">\n" +
                 "  </head>\n" +
                 "  <body>\n" +
                 "    <h1>Index of " + path + "</h1>\n" +
@@ -327,5 +327,5 @@ public class RepositoryPlugin extends Plugin implements RootAction, Serializable
 
 
     public static String DISPLAY_NAME = "Jenkins Maven Repository Server";
-    public static String URL = "repository";
+    public static String URL = "repository-gebit";
 }

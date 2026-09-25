@@ -10,7 +10,7 @@ t = namespace(lib.JenkinsTagLib.class)
 st=namespace("jelly:stapler")
 f=namespace("/lib/form")
 
-t.summary(icon:"/plugin/repository/static/icons/repository.svg") {
+t.summary(icon:"/plugin/repository-gebit/static/icons/repository.svg") {
 
     p(){
         b("Upstream URL:");

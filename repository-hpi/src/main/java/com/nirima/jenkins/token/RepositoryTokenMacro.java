@@ -67,7 +67,7 @@ public class RepositoryTokenMacro extends DataBoundTokenMacro {
                 theBuild = "" + theCause.getUpstreamBuild();
             }
 
-            String root = Jenkins.get().getRootUrl() + "plugin/repository/project/" + theProject + "/Build/"
+            String root = Jenkins.get().getRootUrl() + "plugin/repository-gebit/project/" + theProject + "/Build/"
                     + theBuild;
 
             if (chain)
